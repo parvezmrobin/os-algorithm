@@ -8,6 +8,8 @@ namespace OperatingSystem
 {
     public static class Deadlock
     {
+        #region Multiple Instance
+
         public static void MultipleResource()
         {
             Console.Write("Number of resources: ");
@@ -54,7 +56,7 @@ namespace OperatingSystem
             Console.WriteLine(deadLocked ? "create a deadlock" : "No deadlock found");
         }
 
-        
+
         private static void TakeInput(
             int numProcess,
             IList<int[]> c,
@@ -81,11 +83,10 @@ namespace OperatingSystem
             {
                 a[i] = e[i];
             }
- 
+
             Console.WriteLine("Current Allocation Matrix: ");
             for (var i = 0; i < numProcess; i++)
             {
-                
                 inputStr = Console.ReadLine().Split(' ');
                 for (var j = 0; j < numResource; j++)
                 {
@@ -105,6 +106,105 @@ namespace OperatingSystem
             }
         }
 
-        
+        #endregion
+
+        #region Single Resource
+
+        public static void SingleResorce()
+        {
+            Console.Write("Number of resource: ");
+            var nResource = int.Parse(Console.ReadLine());
+            Console.Write("Number of Process: ");
+            var nProcess = int.Parse(Console.ReadLine());
+            var n = nResource + nProcess;
+            var matrix = new bool[n][];
+            Console.WriteLine("Input process resrource matrix: ");
+            for (var i = 0; i < n; i++)
+            {
+                matrix[i] = new bool[n];
+                var input = Console.ReadLine().Split(' ');
+
+                for (var j = 0; j < n; j++)
+                {
+                    if (input[j].StartsWith("1")) input[j] = "true";
+                    else input[j] = "false";
+                    matrix[i][j] = bool.Parse(input[j]);
+                }
+            }
+
+            var l = new List<int>();
+
+            var res = false;
+            for (var i = 0; i < n; i++)
+            {
+                l.Add(i);
+                var marked = new bool[n];
+                for (int j = 0; j < n; j++)
+                {
+                    if (matrix[i][j])
+                        res = RecursiveSearch(matrix, ref l, ref marked, n, j);
+                }
+
+                if (res) break;
+                l.Remove(i);
+            }
+
+            if (res) ShowOutput(l, nResource);
+            else Console.WriteLine("No deadlock found");
+        }
+
+        private static bool RecursiveSearch(
+            IReadOnlyList<bool[]> matrix,
+            ref List<int> l,
+            ref bool[] marked,
+            int count, int currentNode)
+        {
+            if (l.Contains(currentNode)) return true;
+
+            l.Add(currentNode);
+            marked[currentNode] = true;
+
+            for (var j = 0; j < count; j++)
+            {
+                if (marked[j] || !matrix[currentNode][j]) continue;
+                if (RecursiveSearch(matrix, ref l, ref marked, count, j))
+                {
+                    return true;
+                }
+            }
+            l.Remove(currentNode);
+            return false;
+        }
+
+        private static void ShowOutput(IEnumerable<int> l, int nResource)
+        {
+            var r = new List<int>();
+            var p = new List<int>();
+            foreach (var rp in l)
+            {
+                if (rp < nResource)
+                {
+                    r.Add(rp);
+                }
+                else
+                {
+                    p.Add(rp);
+                }
+            }
+            Console.Write("Resources: ");
+            foreach (var rr in r)
+            {
+                Console.Write(rr + " ");
+            }
+
+            Console.Write("\nProcesses: ");
+            foreach (var pp in p)
+            {
+                Console.Write(pp + " ");
+            }
+            Console.WriteLine();
+        }
+
+        #endregion
     }
 }

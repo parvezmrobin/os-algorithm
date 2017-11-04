@@ -41,7 +41,7 @@ namespace OperatingSystem
 //            Console.ForegroundColor = ConsoleColor.DarkBlue;
 //            Console.Write("Press any key to exit...");
 
-            Deadlock.MultipleResource();
+            Deadlock.SingleResorce();
             Console.ReadKey();
         }
     }
